@@ -25,18 +25,19 @@ Summary:        %{summary}
 
 %description -n python3-conch-triton-kernels %_description
 
-# For official Fedora packages, review which extras should be actually packaged
-# See: https://docs.fedoraproject.org/en-US/packaging-guidelines/Python/#Extras
-%pyproject_extras_subpkg -n python3-conch-triton-kernels cpu,cuda,dev,rocm,xpu
-
-
 %prep
 %autosetup -p1 -n conch_triton_kernels-%{version}
 
 
 %generate_buildrequires
-# Keep only those extras which you actually want to package or use during tests
-%pyproject_buildrequires -x cpu,cuda,dev,rocm,xpu
+# The upstream extras (cpu, cuda, rocm, xpu, dev) are not built. The hardware
+# variants each hard-pin torch==2.7.0 (rocm: torch==2.7.0+rocm6.2.4) to select a
+# prebuilt torch wheel from PyTorch's index -- meaningless against our single
+# system torch 2.12, and the rocm local-version tag isn't valid RPM version
+# syntax (it aborts the buildrequires generator). dev is lint/test tooling. The
+# real runtime dep is numpy (in the base); triton is provided by the base and
+# pulled in by the vLLM stack. See DROPPED-EXTRAS.md in the package dir.
+%pyproject_buildrequires
 
 
 %build
