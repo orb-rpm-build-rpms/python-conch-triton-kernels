@@ -12,6 +12,18 @@ Source:         %{pypi_source conch_triton_kernels}
 
 BuildArch:      noarch
 BuildRequires:  python3-devel
+# conch imports torch and triton unconditionally across most of its modules, so
+# they are needed for the %check imports (and are de facto hard runtime deps).
+# Upstream only declares them inside the hardware-variant extras we dropped (see
+# DROPPED-EXTRAS.md), so they must be requested explicitly here. torch 2.12 is in
+# the localrepo; triton comes from the base.
+BuildRequires:  python3dist(torch)
+BuildRequires:  python3dist(triton)
+
+# Not declared as core deps upstream (only via the dropped variant extras), but
+# imported unconditionally, so require them for a self-consistent package.
+Requires:       python3dist(torch)
+Requires:       python3dist(triton)
 
 
 # Fill in the actual package description to submit package to Fedora
